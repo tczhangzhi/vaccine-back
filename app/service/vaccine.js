@@ -3,10 +3,10 @@ const Service = require('egg').Service;
 const helper = require('../extend/helper');
 
 class VaccineService extends Service {
-  async create({ start = 0, end = 0, configId = 0, childId }) {
+  async create({ time = 0, decision = '', configId = 0, childId }) {
     const result = await this.app.mysql.insert('vaccine', {
-      start,
-      end,
+      time,
+      decision,
       configId,
       childId,
     });
@@ -19,8 +19,7 @@ class VaccineService extends Service {
     return result.insertId;
   }
   async select(body = {}) {
-    const start = body.start || '';
-    const end = body.end || '';
+    const time = body.time || '';
     const configId = body.configId || '';
     const childId = body.childId || '';
     const childName = body.childName || '';
@@ -28,9 +27,9 @@ class VaccineService extends Service {
       const result = await this.app.mysql.query(`
         SELECT *, vaccine.id as id FROM vaccine
         LEFT JOIN child on vaccine.childId = child.id
-        WHERE (start = ? OR ? = '') AND (end = ? OR ? = '') AND (configId = ? OR ? = '') AND (child.id = ? OR ? = '') AND (name LIKE ? OR ? = '')
+        WHERE (time = ? OR ? = '') AND (configId = ? OR ? = '') AND (child.id = ? OR ? = '') AND (name LIKE ? OR ? = '')
         ORDER BY vaccine.id DESC;`,
-      [ start, start, end, end, configId, configId, childId, childId, `${childName}%`, childName ]);
+      [ time, time, configId, configId, childId, childId, `${childName}%`, childName ]);
       return result;
     }
     const { pageIndex, pageSize } = body;
@@ -39,17 +38,17 @@ class VaccineService extends Service {
     const result = await this.app.mysql.query(`
       SELECT *, vaccine.id as id FROM vaccine
       LEFT JOIN child on vaccine.childId = child.id
-      WHERE (start = ? OR ? = '') AND (end = ? OR ? = '') AND (configId = ? OR ? = '') AND (child.id = ? OR ? = '') AND (name LIKE ? OR ? = '')
+      WHERE (time = ? OR ? = '') AND (configId = ? OR ? = '') AND (child.id = ? OR ? = '') AND (name LIKE ? OR ? = '')
       ORDER BY vaccine.id DESC
       LIMIT ?, ?;`,
-    [ start, start, end, end, configId, configId, childId, childId, `${childName}%`, childName, offset, limit ]);
+    [ time, time, configId, configId, childId, childId, `${childName}%`, childName, offset, limit ]);
     const total = await this.app.mysql.query(`
       SELECT COUNT(*) FROM vaccine
       LEFT JOIN child on vaccine.childId = child.id
-      WHERE (start = ? OR ? = '') AND (end = ? OR ? = '') AND (configId = ? OR ? = '') AND (child.id = ? OR ? = '') AND (name LIKE ? OR ? = '')
+      WHERE (time = ? OR ? = '') AND (configId = ? OR ? = '') AND (child.id = ? OR ? = '') AND (name LIKE ? OR ? = '')
       ORDER BY vaccine.id DESC
       LIMIT ?, ?;`,
-    [ start, start, end, end, configId, configId, childId, childId, `${childName}%`, childName, offset, limit ]);
+    [ time, time, configId, configId, childId, childId, `${childName}%`, childName, offset, limit ]);
     return {
       list: result,
       total: total && total[0]['COUNT(*)'],
@@ -82,21 +81,27 @@ class VaccineService extends Service {
       times: '',
     });
     for (const config of configs.list) {
+      const schedulings = config.scheduling;
       if (helper.randomBoolean) {
         const vaccine = {
           configId: config.id,
           childId,
-          start: -1,
-          end: -1,
+          time: 0,
+          decision: new Array(schedulings.length).fill(0),
         };
-        const schedulings = config.scheduling;
-        for (const scheduling of schedulings) {
-          if (scheduling.end >= child.days) {
-            vaccine.start = scheduling.start;
-            vaccine.end = scheduling.end;
+        for (const index in schedulings) {
+          if (schedulings[index].end >= child.days) {
+            vaccine.time = index;
             break;
           }
         }
+        const lastTime = vaccine.time - 1;
+        if (lastTime > -1) {
+          const lastTimeStart = schedulings[lastTime].start;
+          const lastTimeEnd = schedulings[lastTime].end;
+          vaccine.decision[lastTime] = helper.randomInt(lastTimeStart, lastTimeEnd);
+        }
+        vaccine.decision = JSON.stringify(vaccine.decision);
         await this.ctx.service.vaccine.create(vaccine);
       }
     }

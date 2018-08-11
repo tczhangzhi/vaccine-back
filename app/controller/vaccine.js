@@ -3,12 +3,14 @@
 const Controller = require('egg').Controller;
 
 const createRule = {
-  start: {
+  time: {
     type: 'number',
     required: false,
   },
-  end: {
-    type: 'number',
+  decision: {
+    type: 'string',
+    format: /\[.*\]/,
+    allowEmpty: true,
     required: false,
   },
   configId: {
@@ -33,12 +35,14 @@ const showRule = {
   },
 };
 const updateRule = {
-  start: {
+  time: {
     type: 'number',
     required: false,
   },
-  end: {
-    type: 'number',
+  decision: {
+    type: 'string',
+    format: /\[.*\]/,
+    allowEmpty: true,
     required: false,
   },
   configId: {
@@ -59,15 +63,13 @@ const indexRule = {
     type: 'number',
     required: true,
   },
-  start: {
-    type: 'string',
-    format: /\d*/,
-    allowEmpty: true,
+  time: {
+    type: 'number',
     required: false,
   },
-  end: {
+  decision: {
     type: 'string',
-    format: /\d*/,
+    format: /\[.*\]/,
     allowEmpty: true,
     required: false,
   },

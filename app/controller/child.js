@@ -267,6 +267,64 @@ class ChildController extends Controller {
     ctx.body = `f=${data.f};\nl=${data.l};\no=${data.o};\nw=${data.w};\nh=${data.h};`;
     ctx.status = 201;
   }
+  async downloadJSON () {
+    const ctx = this.ctx;
+    ctx.validate(downloadRule, ctx.query);
+    const days = ctx.query.days || '1';
+    const data = {
+      // 儿童年龄
+      f: [],
+      // 最早接种时间
+      l: [],
+      // 最晚接种时间
+      o: [],
+      // 是否需要接种
+      w: [],
+      // 已有接种数量
+      h: [],
+    };
+    const children = await ctx.service.child.select();
+    const configs = await ctx.service.config.select();
+    data.f = children.map(child => child.days);
+    data.l = configs.map(config => config.scheduling.map(item => item.start));
+    data.o = configs.map(config => config.scheduling.map(item => item.end));
+    data.q = configs.map(config => config.scheduling.map(item => item.space));
+    const vaccineResultLength = Math.max(...configs.map(config => config.times));
+    const time = [];
+    const decision = [];
+    for (const child of children) {
+      const timeChild = [];
+      const decisionChild = [];
+      const vaccines = await ctx.service.vaccine.select({ childId: child.id });
+      for (const config of configs) {
+        const vaccine = vaccines.find(vaccine => vaccine.configId === config.id);
+        if (vaccine) {
+          console.log(vaccine.decision)
+          const timeConfig = vaccine.time
+          const timeConfigArray = new Array(vaccineResultLength).fill(0)
+          timeConfigArray[timeConfig] = 1
+          timeChild.push(timeConfigArray)
+          decisionChild.push(JSON.parse(vaccine.decision))
+        } else {
+          const timeConfigArray = new Array(vaccineResultLength).fill(0)
+          timeChild.push(timeConfigArray)
+          decisionChild.push(timeConfigArray)
+        }
+      }
+      time.push(timeChild);
+      decision.push(decisionChild);
+    }
+    data.w = time;
+    data.p = decision;
+    data.h = new Array(parseInt(days)).fill(0);
+    for (const index in data.h) {
+      data.h[index] = Math.floor(Math.random() * 20 + 10);
+    }
+    ctx.attachment('vaccine.json');
+    ctx.set('Content-Type', 'application/octet-stream');
+    ctx.body = JSON.stringify(data);
+    ctx.status = 201;
+  }
   async downloadLocal () {
     const ctx = this.ctx;
     ctx.validate(downloadRule, ctx.query);

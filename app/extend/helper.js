@@ -17,6 +17,9 @@ module.exports = {
   get randomBoolean() {
     return Math.random() > 0.5;
   },
+  randomInt (start, end) {
+    return parseInt(Math.random()*(end - start + 1) + start)
+  },
   dataFormat (data) {
     for (let index in data) {
       if (data[index] instanceof Array) {
@@ -24,5 +27,5 @@ module.exports = {
       }
     }
     return `[${data.join(' ')}]`;
-  }
+  },
 };
