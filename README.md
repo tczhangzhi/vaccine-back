@@ -59,6 +59,12 @@ sudo npm run dev # for development
 
 If you want to change the front page, then you need to recompile the front end project and paste the contents of the dist folder into `app/view`  and `app/public/static`  path.
 
+If your dataset is too big to generate in 30 minutes, you may need this commond to download by terminal.
+
+```
+wget http://your_host/api/child/downloadJSON\?days\=40
+```
+
 ## How to develop
 
 You can open a hot update service.

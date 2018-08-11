@@ -299,7 +299,6 @@ class ChildController extends Controller {
       for (const config of configs) {
         const vaccine = vaccines.find(vaccine => vaccine.configId === config.id);
         if (vaccine) {
-          console.log(vaccine.decision)
           const timeConfig = vaccine.time
           const timeConfigArray = new Array(vaccineResultLength).fill(0)
           timeConfigArray[timeConfig] = 1
@@ -320,9 +319,10 @@ class ChildController extends Controller {
     for (const index in data.h) {
       data.h[index] = Math.floor(Math.random() * 20 + 10);
     }
+    const jsonData = JSON.stringify(data);
     ctx.attachment('vaccine.json');
     ctx.set('Content-Type', 'application/octet-stream');
-    ctx.body = JSON.stringify(data);
+    ctx.body = jsonData
     ctx.status = 201;
   }
   async downloadLocal () {
@@ -353,7 +353,6 @@ class ChildController extends Controller {
     const childResult = [];
     let childIndex = 1;
     for (const child of children) {
-      console.log(childIndex);
       childIndex++;
       const configResult = [];
       const vaccines = vaccinesTable.filter(item => item.childId === child.id);
@@ -413,7 +412,6 @@ class ChildController extends Controller {
     const childResult = [];
     let childIndex = 1;
     for (const child of children) {
-      console.log(childIndex);
       childIndex++;
       const configResult = [];
       const vaccines = vaccinesTable.filter(item => item.childId === child.id);
