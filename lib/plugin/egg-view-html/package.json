@@ -1,0 +1,13 @@
+{
+  "name": "egg-view-html",
+  "eggPlugin": {
+    "name": "html",
+    "dependencies": [ "view" ]
+  },
+  "keywords": [
+    "egg",
+    "egg-plugin",
+    "egg-view",
+    "html"
+  ]
+}
