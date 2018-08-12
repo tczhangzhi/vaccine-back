@@ -65,6 +65,15 @@ If your dataset is too big to generate in 30 minutes, you may need this commond 
 wget http://your_host/api/child/downloadJSON\?days\=40
 ```
 
+If you have no idea about configuring vaccination rule information, you can import sql file.
+
+```
+mysql -h localhost -u username -p password
+create database vaccine;
+use vaccine;
+source ./path/to/standards_vaccine_config.sql
+```
+
 ## How to develop
 
 You can open a hot update service.
