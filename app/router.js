@@ -10,6 +10,7 @@ module.exports = app => {
   app.router.get('/api/child/data', app.controller.child.data);
   app.router.get('/api/child/downloadLocal', app.controller.child.downloadLocal);
   app.router.get('/api/child/downloadJSON', app.controller.child.downloadJSON);
+  app.router.get('/api/child/downloadJSONLocal', app.controller.child.downloadJSONLocal);
   app.router.get('/api/child/dataLocal', app.controller.child.dataLocal);
   app.router.get('/api/child/clean', app.controller.child.clean);
   app.router.get('/api/child/list', app.controller.child.list);
