@@ -62,7 +62,7 @@ If you want to change the front page, then you need to recompile the front end p
 If your dataset is too big to generate in 30 minutes, you may need this commond to download by terminal.
 
 ```
-wget http://your_host/api/child/downloadJSON\?days\=40
+wget http://your_host/api/child/downloadJSON\?days\=40 -T 6000
 ```
 
 If you have no idea about configuring vaccination rule information, you can import sql file.
